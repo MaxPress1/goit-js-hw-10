@@ -27,8 +27,8 @@ const options = {
         console.log(selectedDates[0]);
         userSelectedDate = selectedDates[0];
 
-            if (userSelectedDate < new Date()) {
-                iziToast.warning({
+            if (userSelectedDate < Date.now()) {
+                iziToast.error({
                     message: "Please choose a date in the future",
                     position: "topRight"
                 });
@@ -70,31 +70,28 @@ function convertMs(ms) {
 btn.addEventListener("click", startTimer);
 
 function startTimer() {
-    timer = setInterval(updateTime, 1000);
+    timer = setInterval(() => {
+        const currentTime = Date.now();
+        const deltaTime = userSelectedDate.getTime() - currentTime;
+        const convertTime = convertMs(deltaTime);
+
+        if (deltaTime < 0) {
+        
+            clearInterval(timer);
+            input.disabled = false;
+            btn.disabled = false;
+            return;
+    
+        }
+    
+        days.textContent = addLeadingZero(String(convertTime.days));
+        hours.textContent = addLeadingZero(String(convertTime.hours));
+        minutes.textContent = addLeadingZero(String(convertTime.minutes));
+        seconds.textContent = addLeadingZero(String(convertTime.seconds));
+    }, 1000);
+    
     btn.disabled = true;
     input.disabled = true;
 };
-
-function updateTime() {
-
-    const currentTime = new Date().getTime();
-    const deltaTime = userSelectedDate.getTime() - currentTime;
-    const convertTime = convertMs(deltaTime);
-
-    if (deltaTime < 0) {
-        
-        clearInterval(timer);
-        input.disabled = false;
-        btn.disabled = false;
-        return;
-        
-    }
-    
-  days.textContent = addLeadingZero(String(convertTime.days));
-  hours.textContent = addLeadingZero(String(convertTime.hours));
-  minutes.textContent = addLeadingZero(String(convertTime.minutes));
-  seconds.textContent = addLeadingZero(String(convertTime.seconds));
-}
-
 
 flatpickr(input, options);
